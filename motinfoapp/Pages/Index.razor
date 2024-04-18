@@ -1,0 +1,114 @@
+﻿@page "/"
+
+<link href="https://fonts.cdnfonts.com/css/uk-number-plate" rel="stylesheet">
+
+
+<PageTitle>Mot Info</PageTitle>
+
+<div class="header">
+    <h1>MOT Details App</h1>
+</div>
+
+<form @onsubmit="SubmitForm">
+    <input id="registrationInput" class="uk-number-plate" @bind="vehicleRegistration" autocomplete="off" placeholder="ENTER REG"/>
+    <div class="input-buttons">
+        <button class="btn btn-danger clear-button" @onclick="ReloadPage">Clear Details</button>
+        <button type="submit" class="btn btn-primary search-button" disabled="@string.IsNullOrEmpty(vehicleRegistration)">Check MOT Details</button>
+    </div>
+</form>
+
+<div class="vehicle-details-display">
+    <dl class="vehicle-details-list">
+        <dt>Registration Number</dt>
+        <dd>RK53 OTV</dd>
+        <dt>Make</dt>
+        <dd>N/A</dd>
+        <dt>Model</dt>
+        <dd>N/A </dd>
+        <dt>Colour</dt>
+        <dd>N/A</dd>
+        <dt>MOT Expiry Date</dt>
+        <dd>15/09/2016</dd>
+        <dt>Mileage at last MOT</dt>
+        <dd>N/A</dd>
+    </dl>
+</div>
+
+
+@* @if (IsMotOverdue()) *@
+@* { *@
+@*     <div class="alert mot-warning" role="alert"> *@
+@*         Warning: Your MOT is overdue. *@
+@*     </div> *@
+@* } *@
+
+    <div class="alert alert-danger mot-warning" role="alert">
+        Warning: Your MOT is overdue.
+    </div>
+
+@* <dt>Registration Number</dt> *@
+        @* <dd>@(vehicleData?.RegistrationNumber ?? "N/A")</dd> *@
+        @* <dt>Make</dt> *@
+        @* <dd>@(vehicleData?.Make ?? "N/A")</dd> *@
+        @* <dt>Model</dt> *@
+        @* <dd>@(vehicleData?.Model ?? "N/A")</dd> *@
+        @* <dt>Colour</dt> *@
+        @* <dd>@(vehicleData?.Colour ?? "N/A")</dd> *@
+        @* <dt>MOT Expiry Date</dt> *@
+        @* <dd>@(vehicleData?.MotExpiry ?? "N/A")</dd> *@
+        @* <dt>Mileage at last MOT</dt> *@
+        @* <dd>@(vehicleData?.Mileage ?? "N/A")</dd> *@
+
+@* @code { *@
+@*     private string vehicleRegistration; *@
+@*     private VehicleInfoViewModel vehicleInfo; *@
+@* *@
+@*     private Task<VehicleInfoViewModel> SubmitForm() *@
+@*     { *@
+@*         return VehicleInfoService.GetVehicleInfo(vehicleRegistration); *@
+@*     } *@
+@* } *@
+
+@code {
+    private string vehicleRegistration;
+    private VehicleInfo vehicleInfo;
+
+    public HttpClient _httpClient = new HttpClient();
+
+    private async Task<VehicleInfo?> SubmitForm()
+    {
+        var request = new HttpRequestMessage(HttpMethod.Get, $"https://beta.check-mot.service.gov.uk/trade/vehicles/mot-tests?registration={vehicleRegistration}");
+        request.Headers.Add("x-api-key", "fZi8YcjrZN1cGkQeZP7Uaa4rTxua8HovaswPuIno");
+        Console.WriteLine(request);
+
+        var response = await _httpClient.SendAsync(request);
+        Console.WriteLine(response);
+        return await response.Content.ReadFromJsonAsync<VehicleInfo>();
+    }
+    
+    // private bool IsMotOverdue()
+    // {
+    //     return vehicleInfo?.motTests.HasValue == true && vehicleInfo.motTests < DateTime.Today;
+    // }
+
+    private void ReloadPage()
+    {
+        NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad: true);
+    }
+    
+    [Inject]
+    private NavigationManager NavigationManager { get; set; }
+
+    
+
+    public class VehicleInfo
+    {
+        public string registration { get; set; }
+        public string make { get; set; }
+        public string model { get; set; }
+        public string primaryColour { get; set; }
+        public string motTests { get; set; }
+    }
+    
+
+}
