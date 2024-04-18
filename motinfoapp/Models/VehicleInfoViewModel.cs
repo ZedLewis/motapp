@@ -2,10 +2,10 @@
 
 public class VehicleInfoViewModel
 {
-    public string Registration { get; set; }
-    public string Make { get; set; }
-    public string Model { get; set; }
-    public string Colour { get; set; }
-    public DateTimeOffset MotExpiry { get; set; }
-    public int MileageLastMot { get; set; }
+    public string registration { get; set; }
+    public string make { get; set; }
+    public string model { get; set; }
+    public string colour { get; set; }
+    public DateTime motExpiry { get; set; }
+    public int mileageLastMot { get; set; }
 }
